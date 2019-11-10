@@ -102,6 +102,28 @@ class MoreInfoVacuum extends PolymerElement {
         </div>
       </div>
 
+      <div hidden$="[[!supportsMaps(stateObj)]]">
+        <div class="horizontal justified layout">
+          <ha-paper-dropdown-menu label-float="" dynamic-align="" label="Areas">
+            <paper-listbox
+              multi
+              slot="dropdown-content"
+              selected="[[stateObj.attributes.areas]]"
+              on-selected-items-changed="onAreaChanged"
+              attr-for-selected="item-name"
+            >
+              <template
+                is="dom-repeat"
+                items="[[stateObj.attributes.areas_list]]"
+              >
+                <paper-item item-name$="[[item]]">[[item]]</paper-item>
+              </template>
+            </paper-listbox>
+          </ha-paper-dropdown-menu>
+        </div>
+        <p></p>
+      </div>
+
       <div hidden$="[[!supportsFanSpeed(stateObj)]]">
         <div class="horizontal justified layout">
           <ha-paper-dropdown-menu
@@ -136,7 +158,7 @@ class MoreInfoVacuum extends PolymerElement {
       </div>
       <ha-attributes
         state-obj="[[stateObj]]"
-        extra-filters="fan_speed,fan_speed_list,status,battery_level,battery_icon"
+        extra-filters="fan_speed,areas,areas_list,fan_speed_list,status,battery_level,battery_icon"
       ></ha-attributes>
     `;
   }
@@ -190,6 +212,10 @@ class MoreInfoVacuum extends PolymerElement {
     return supportsFeature(stateObj, 1024);
   }
 
+  supportsMaps(stateObj) {
+    return supportsFeature(stateObj, 2048);
+  }
+
   supportsStart(stateObj) {
     return supportsFeature(stateObj, 8192);
   }
@@ -201,6 +227,7 @@ class MoreInfoVacuum extends PolymerElement {
       supportsFeature(stateObj, 16) |
       supportsFeature(stateObj, 512) |
       supportsFeature(stateObj, 1024) |
+      supportsFeature(stateObj, 2048) |
       supportsFeature(stateObj, 8192)
     );
   }
@@ -215,6 +242,19 @@ class MoreInfoVacuum extends PolymerElement {
       entity_id: this.stateObj.entity_id,
       fan_speed: newVal,
     });
+  }
+
+  onAreaChanged(ev) {
+    var texts = [];
+    ev.detail.value.forEach(function(element) {
+      texts.push(element.innerText);
+    });
+    if (texts) {
+      this.hass.callService("vacuum", "set_areas", {
+        entity_id: this.stateObj.entity_id,
+        areas: texts,
+      });
+    }
   }
 
   onStop() {
