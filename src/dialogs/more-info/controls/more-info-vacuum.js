@@ -249,12 +249,10 @@ class MoreInfoVacuum extends PolymerElement {
     ev.detail.value.forEach(function(element) {
       texts.push(element.innerText);
     });
-    if (texts) {
-      this.hass.callService("vacuum", "set_areas", {
-        entity_id: this.stateObj.entity_id,
-        areas: texts,
-      });
-    }
+    this.hass.callService("vacuum", "set_areas", {
+      entity_id: this.stateObj.entity_id,
+      areas: texts,
+    });
   }
 
   onStop() {
